@@ -50,10 +50,14 @@ class GetAllTasksTests(TestCase):
                 }
             Task.objects.create(**task_data)
 
+        self.token = Token.objects.first()
+
 
     def test_get_all_tasks(self):
         url = "http://127.0.0.1:8000/tasks/"
-        response = self.client.get(url)
+        # self.tokens
+        headers = {'HTTP_AUTHORIZATION': f'Token {self.token.key}'}
+        response = self.client.get(url,**headers)
         tasks = Task.objects.all()
         seraializer = TaskSerializer(tasks,many = True)
 

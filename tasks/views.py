@@ -14,8 +14,8 @@ class IsOwner(permissions.BasePermission):
         return request.user.is_authenticated 
     
 class TaksViewset(ModelViewSet):
-    # permission_classes = [IsOwner]
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [IsOwner]
+    # permission_classes = [permissions.AllowAny]
     serializer_class = TaskSerializer
     queryset = Task.objects.all()
 
