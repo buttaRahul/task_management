@@ -16,7 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-
+from tasks.views import ViewSet
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('task/',ViewSet.as_view({'get': 'list'}))
 ]
