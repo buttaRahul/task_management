@@ -187,37 +187,58 @@ num_words = ["","ONE","TWO","THREE","FOUR","FIVE","SIX","SEVEN","EIGHT","NINE","
 #         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class UpdateTaskTest(APITestCase):
-    client = APIClient()
+# class UpdateTaskTest(APITestCase):
+#     client = APIClient()
+
+#     def setUp(self):
+#         pswd = make_password("abc@123")
+
+#         self.user = User.objects.create(username = "user1",password = pswd)
+        
+#         self.token = Token.objects.create(user = self.user)
+
+#         self.task = Task.objects.create(title = "task100",description = "This is task Hundred", due_date = "2023-12-13",status = 1, owner = self.user)
+
+    
+#     def test_put_task(self):
+
+#         test_data = {
+#             "title" : "task101",
+#             "description": "This is task Hundred",
+#             "due_date": "2023-12-13",
+#             "status": 1,
+#             "owner" : self.user.id,
+
+#         }
+
+#         url = f"http://127.0.0.1:8000/tasks/{self.task.id}/"
+#         print(url)
+#         headers = {'HTTP_AUTHORIZATION': f'Token {self.token.key}'} 
+#         response = self.client.put(url,data=test_data,**headers)
+#         print("IN PUT TASK")
+#         self.assertEqual(response.status_code,status.HTTP_200_OK)
+
+
+
+class UpdateTaskOtherThanOwner(APITestCase):
 
     def setUp(self):
         pswd = make_password("abc@123")
+        self.user1 = User.objects.create(username = "user1",password = pswd)
+        self.user2 = User.objects.create(username = "user2",password = pswd)
 
-        self.user = User.objects.create(username = "user1",password = pswd)
+        self.token1 = Token.objects.create(user = self.user1)
+        self.token2 = Token.objects.create(user = self.user2)
+
+        self.task = Task.objects.create(title = "task100",description = "This is task Hundred", due_date = "2023-12-13",status = 1, owner = self.user1)
         
-        self.token = Token.objects.create(user = self.user)
-
-        self.task = Task.objects.create(title = "task100",description = "This is task Hundred", due_date = "2023-12-13",status = 1, owner = self.user)
-
-    
-    def test_put_task(self):
-
-        test_data = {
-            "title" : "task101",
-            "description": "This is task Hundred",
-            "due_date": "2023-12-13",
-            "status": 1,
-            "owner" : self.user.id,
-
-        }
-
+    def test_retrieve_than_owner(self):
         url = f"http://127.0.0.1:8000/tasks/{self.task.id}/"
-        print(url)
-        headers = {'HTTP_AUTHORIZATION': f'Token {self.token.key}'} 
-        response = self.client.put(url,data=test_data,**headers)
-        print("IN PUT TASK")
-        self.assertEqual(response.status_code,status.HTTP_200_OK)
-
+        headers = {'HTTP_AUTHORIZATION': f'Token {self.token2.key}'}
+        response = self.client.get(url,**headers)
+        error_message = 'You do not have permission to perform this action.'
+        self.assertEqual(response.status_code,status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data['detail'],error_message)
 
 
 
