@@ -1,4 +1,5 @@
 from django.test import TestCase
+from rest_framework.test import APITestCase
 from tasks.models import Task
 from django.contrib.auth.models import User
 from random import randint
@@ -64,45 +65,169 @@ num_words = ["","ONE","TWO","THREE","FOUR","FIVE","SIX","SEVEN","EIGHT","NINE","
 #         self.assertEqual(response.data,seraializer.data)
 #         self.assertEqual(response.status_code,status.HTTP_200_OK)
 
-class CreateNewTaskTests(TestCase):
+# class CreateNewTaskTests(TestCase):
+#     client = APIClient()
+
+
+#     def setUp(self):
+#         pswd = make_password("abc123")
+#         user_schema = [
+#             {
+#                 "username": "user1",
+#                 "password" : pswd,
+#             },
+#             {
+#                 "username": "user2",
+#                 "password": pswd,
+#             }
+
+#         ]
+
+#         for user_data in user_schema:
+#            u =  User.objects.create(**user_data)
+#            Token.objects.create(user = u)
+
+#         self.token = Token.objects.all()[0]
+
+
+#     def test_post_valid_task(self):
+#         url = "http://127.0.0.1:8000/tasks/"
+#         data = {
+#             "title" : "task99",
+#             "description": "This is task 99",
+#             "due_date" : "2023-12-13",
+#             "status": 1,
+#             "owner" : User.objects.first().id,
+#         }
+#         headers = {'HTTP_AUTHORIZATION': f'Token {self.token.key}'}
+#         response = self.client.post(url,data=data,format = 'json',**headers)
+
+#         self.assertEqual(response.status_code,status.HTTP_201_CREATED)
+
+
+
+# class DeleteTaskTest(TestCase):
+
+#     client = APIClient()
+
+#     def setUp(self):
+#         pswd = make_password("abc123")
+#         user_schema = [
+#             {
+#                 "username": "user1",
+#                 "password" : pswd,
+#             },
+#             {
+#                 "username": "user2",
+#                 "password": pswd,
+#             }
+#         ]
+
+#         for user_data in user_schema:
+#             u = User.objects.create(**user_data)
+#             Token.objects.create(user=u)
+
+#         self.token = Token.objects.all()[0]
+
+#         self.task_content = {
+#             "title": "task100",
+#             "description": "This is task hundred",
+#             "due_date": "2023-12-13",
+#             "status": 1,
+#             "owner": User.objects.first()
+#         }
+#         self.task = Task.objects.create(**self.task_content)
+
+#     def test_delete_task(self):
+#         url = f"http://127.0.0.1:8000/tasks/{self.task.id}/"
+#         headers = {'HTTP_AUTHORIZATION': f'Token {self.token.key}'}
+#         response = self.client.delete(url, **headers)
+#         print("IN TEST DELETE TASK")
+#         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+
+
+# class RetrieveSingleTaskTest(TestCase):
+
+#     client = APIClient()
+
+#     def setUp(self):
+#         pswd = make_password("abc123")
+#         user_schema = [
+#             {
+#                 "username": "user1",
+#                 "password" : pswd,
+#             },
+#             {
+#                 "username": "user2",
+#                 "password": pswd,
+#             }
+#         ]
+
+#         for user_data in user_schema:
+#             u = User.objects.create(**user_data)
+#             Token.objects.create(user=u)
+
+#         self.token = Token.objects.all()[0]
+
+#         self.task_content = {
+#             "title": "task100",
+#             "description": "This is task hundred",
+#             "due_date": "2023-12-13",
+#             "status": 1,
+#             "owner": User.objects.first()
+#         }
+#         self.task = Task.objects.create(**self.task_content)
+
+#     def test_retrieve_task(self):
+#         url = f"http://127.0.0.1:8000/tasks/{self.task.id}/"
+#         headers = {'HTTP_AUTHORIZATION': f'Token {self.token.key}'}
+#         response = self.client.get(url, **headers)
+#         print("IN RETREIVE SINGLE TASK")
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class UpdateTaskTest(APITestCase):
     client = APIClient()
 
-
     def setUp(self):
-        pswd = make_password("abc123")
-        user_schema = [
-            {
-                "username": "user1",
-                "password" : pswd,
-            },
-            {
-                "username": "user2",
-                "password": pswd,
-            }
+        pswd = make_password("abc@123")
 
-        ]
+        self.user = User.objects.create(username = "user1",password = pswd)
+        
+        self.token = Token.objects.create(user = self.user)
 
-        for user_data in user_schema:
-           u =  User.objects.create(**user_data)
-           Token.objects.create(user = u)
+        self.task = Task.objects.create(title = "task100",description = "This is task Hundred", due_date = "2023-12-13",status = 1, owner = self.user)
 
-        self.token = Token.objects.all()[0]
+    
+    def test_put_task(self):
 
-
-    def test_post_valid_task(self):
-        url = "http://127.0.0.1:8000/tasks/"
-        data = {
-            "title" : "task99",
-            "description": "This is task 99",
-            "due_date" : "2023-12-13",
+        test_data = {
+            "title" : "task101",
+            "description": "This is task Hundred",
+            "due_date": "2023-12-13",
             "status": 1,
-            "owner" : User.objects.first().id,
-        }
-        headers = {'HTTP_AUTHORIZATION': f'Token {self.token.key}'}
-        response = self.client.post(url,data=data,format = 'json',**headers)
-        print("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",response.data)
+            "owner" : self.user.id,
 
-        self.assertEqual(response.status_code,status.HTTP_201_CREATED)
+        }
+
+        url = f"http://127.0.0.1:8000/tasks/{self.task.id}/"
+        print(url)
+        headers = {'HTTP_AUTHORIZATION': f'Token {self.token.key}'} 
+        response = self.client.put(url,data=test_data,**headers)
+        print("IN PUT TASK")
+        self.assertEqual(response.status_code,status.HTTP_200_OK)
+
+
+
+
+
+
+
+      
+
+# python manage.py test -v 2
+
 
 
         
